@@ -325,3 +325,83 @@ class Solution {
 }
 ```
 
+## HOT100-20 有效的括号
+
+### 题目内容
+
+给定一个只包括 '('，')'，'{'，'}'，'['，']' 的字符串 s ，判断字符串是否有效。
+
+有效字符串需满足：
+
+左括号必须用相同类型的右括号闭合。
+左括号必须以正确的顺序闭合。
+每个右括号都有一个对应的相同类型的左括号。  
+示例1：
+
+```console
+输入：s = "()"
+输出：true
+```  
+
+示例2：
+
+```console
+输入：s = "()[]{}"
+输出：true
+```  
+
+示例3：
+
+```console
+输入：s = "(]"
+输出：false
+```
+
+### 题解思路
+
+核心思想：**栈**  
+
+- 当遇到左括号时，将左括号压入栈中
+- 当遇到右括号时，判断此时栈是否为空，空的话说明匹配错误，返回false；否则从栈中pop出字符进行比对
+- 遍历完后判断栈是否为空，空的话说明匹配正确， 返回true；否则返回false
+
+![Alt](https://pic.leetcode-cn.com/baa8829ac398e665eb645dca29eadd631e2b337e05022aa5a678e091471a4913-20.gif)
+
+### 题解代码
+
+```java
+class Solution {
+    public boolean isValid(String s) {
+        Stack<Character> stack = new Stack<>();
+
+        for (int i = 0;i<s.length();i++) {
+            char c = s.charAt(i);
+            // 左括号时压入栈中
+            if (c == '{' || c == '[' || c == '(') {
+                stack.push(c);
+            }else if (c == '}' || c == ')' || c == ']') {
+                // 当栈不为空且遇到右边括号时，从栈顶获取获取值进行判断
+                if (!stack.empty()) {
+                    char tmpC = stack.pop();
+                    if (c == ')' && tmpC!='(') return false;
+                    else if (c == '}' && tmpC!='{') return false;
+                    else if(c == ']' && tmpC!='[') return false;
+                } else {
+                    // 栈为空，但此时遇到右括号，说明匹配出错，返回false
+                    return false;
+                }
+            }else {
+                // 遇到不明符号，返回false
+                return false;
+            }
+        }
+        // 当栈最后为空时，说明能够全部匹配，返回true
+        if (stack.empty()) {
+            return true;
+        }else {
+            return false;
+        }
+    }
+}
+```
+
