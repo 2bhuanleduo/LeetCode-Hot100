@@ -405,3 +405,100 @@ class Solution {
 }
 ```
 
+## HOT100-21 合并两个有序链表
+
+### 题目内容
+
+将两个升序链表合并为一个新的 升序 链表并返回。新链表是通过拼接给定的两个链表的所有节点组成的。  
+示例1：
+![Alt](https://assets.leetcode.com/uploads/2020/10/03/merge_ex1.jpg)
+```console
+输入：l1 = [1,2,4], l2 = [1,3,4]
+输出：[1,1,2,3,4,4]
+```
+示例2：
+```console
+输入：l1 = [], l2 = []
+输出：[]
+```
+示例3：
+```console
+输入：l1 = [], l2 = [0]
+输出：[0]
+```
+
+### 题解思路
+
+- 暴力解法  
+新建一个链表，用于存储合并后的内容。遍历两个链表，从头结点开始比较，判断两个头结点指向的值大小，将更小值的节点链接到新建链表中，知道两个链表都为null。
+- 回溯法  
+    * 终止条件：当两个链表都为空时，说明合并完成
+    * 递归调用：判断l1和l2头结点哪个更小，然后较小结点的next指针指向其余结点的合并结果
+
+### 题解代码
+
+- 暴力解法
+```java
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+class Solution {
+    public ListNode mergeTwoLists(ListNode list1, ListNode list2) {
+        ListNode head = new ListNode();
+        ListNode cur = head;
+
+        while (list1 != null || list2 != null) {
+            // 两链表都不为空的话，比较两个链表的值
+            if (list1!=null&&list2!=null) {
+                if(list1.val <= list2.val) {
+                    cur.next = list1;
+                    list1 = list1.next;
+                } else {
+                    cur.next = list2;
+                    list2 = list2.next;
+                }
+            // 只有一个链表不为空，直接添加到新链表
+            } else if(list1!=null) {
+                cur.next = list1;
+                list1 = list1.next;
+            } else {
+                cur.next = list2;
+                list2 = list2.next;
+            }
+            // 新链表指针位置移动
+            cur = cur.next;
+        }
+        return head.next;
+    }
+}
+```
+- 回溯法
+```java
+class Solution {
+    public ListNode mergeTwoLists(ListNode list1, ListNode list2) {
+        
+        if (list1 == null) {
+            return list2;
+        }
+        if (list2 == null) {
+            return list1;
+        }
+
+        if (list1.val < list2.val) {
+            list1.next = mergeTwoLists(list1.next, list2);
+            return list1;
+        } else {
+            list2.next = mergeTwoLists(list1, list2.next);
+            return list2;
+        }
+    }
+}
+```
+
