@@ -248,6 +248,7 @@ class Solution {
 ```
 
 ### 题解思路
+核心思想：**回溯法和双指针**
 
 - 方法1：回溯法  
   - 特殊情况判断：当输入为空时，直接返回空
@@ -432,6 +433,7 @@ class Solution {
 - 暴力解法  
 新建一个链表，用于存储合并后的内容。遍历两个链表，从头结点开始比较，判断两个头结点指向的值大小，将更小值的节点链接到新建链表中，知道两个链表都为null。
 - 回溯法  
+核心思想：**回溯法**
     * 终止条件：当两个链表都为空时，说明合并完成
     * 递归调用：判断l1和l2头结点哪个更小，然后较小结点的next指针指向其余结点的合并结果
 
@@ -496,6 +498,168 @@ class Solution {
             return list1;
         } else {
             list2.next = mergeTwoLists(list1, list2.next);
+            return list2;
+        }
+    }
+}
+```
+
+## HOT100-22 括号生成
+
+### 题目内容
+
+数字 n 代表生成括号的对数，请你设计一个函数，用于能够生成所有可能的并且**有效的**括号组合。  
+示例1：
+```console
+输入：n = 3
+输出：["((()))","(()())","(())()","()(())","()()()"]
+```
+示例2：
+```console
+输入：n = 1
+输出：["()"]
+```
+
+### 题解思路
+
+核心思想：**回溯+剪枝**  
+以```n=2```为例，画树形结构图。
+![Alt](https://pic.leetcode-cn.com/7ec04f84e936e95782aba26c4663c5fe7aaf94a2a80986a97d81574467b0c513-LeetCode%20%E7%AC%AC%2022%20%E9%A2%98%EF%BC%9A%E2%80%9C%E6%8B%AC%E5%8F%B7%E7%94%9F%E5%87%BA%E2%80%9D%E9%A2%98%E8%A7%A3%E9%85%8D%E5%9B%BE.png)
+从图中可以得出的结论：  
+- 当前左右括号都有大于0个可以使用的时候，才产生分支
+- 产生左分支时，只看当前是否还有左括号可以使用
+- 产生右分支时，还受到左分支的限制，右边剩余可以使用的括号数量一定得在严格大于左边剩余的数量时，才可以产生分支
+- 在左边和右边剩余的括号数都大于0的时候就散
+
+### 题解代码
+
+```java
+class Solution {
+    public List<String> generateParenthesis(int n) {
+        
+        List<String> ans = new ArrayList<>();
+
+        // 特殊情况，当n为0时，直接输出空列表
+        if (n == 0) { 
+            return ans;
+        }
+
+        dfs(new StringBuilder(), n, n, ans);
+
+        return ans;
+    }
+
+    public void dfs(StringBuilder curStr, int left, int right, List<String> ans) {
+
+        // 左右括号都为空时，添加对应字符
+        if (left == 0 && right == 0) {
+            ans.add(curStr.toString());
+            return;
+        }
+
+        // 当左括号数量大于右括号数量时，进行剪枝操作，直接返回
+        if (left > right) {
+            return;
+        }
+
+        // 经过前两步判断，开始添加左右括号
+        if (left > 0) {
+            curStr.append('(');
+            dfs(curStr, left - 1, right, ans);
+            curStr.deleteCharAt(curStr.length() - 1);
+        }
+        
+        if (right > 0) {
+            curStr.append(')');
+            dfs(curStr, left, right - 1, ans);
+            curStr.deleteCharAt(curStr.length() - 1);
+        }
+
+    }
+}
+```
+
+## 合并K个升序链表
+
+### 题目内容
+给你一个链表数组，每个链表都已经按升序排列。  
+请你将所有链表合并到一个升序链表中，返回合并后的链表。
+
+示例1：
+```console
+输入：lists = [[1,4,5],[1,3,4],[2,6]]
+输出：[1,1,2,3,4,4,5,6]
+解释：链表数组如下：
+[
+  1->4->5,
+  1->3->4,
+  2->6
+]
+将它们合并到一个有序链表中得到。
+1->1->2->3->4->4->5->6
+```
+
+示例2：
+```console
+输入：lists = []
+输出：[]
+```
+示例3：
+```console
+输入：lists = [[]]
+输出：[]
+```
+
+### 题解思路
+
+核心思想：**分治法**  
+- 首先链表递归，两两合并链表
+- 最后得到的链表采用**回溯**的方法合并成一个升序的链表
+
+### 题解代码
+
+```java
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+class Solution {
+    public ListNode mergeKLists(ListNode[] lists) {
+        // 特殊判断
+        if (lists.length == 0) {
+            return null;
+        }
+        return merge(lists, 0, lists.length - 1);
+    }
+
+    public ListNode merge(ListNode[] lists, int left, int right) {
+        if (left == right) {return lists[left];}
+        int mid = (right + left) / 2;
+        ListNode l1 = merge(lists, left, mid);
+        ListNode l2 = merge(lists, mid+1, right);
+        return mergeTwoList(l1, l2);
+    }
+
+    public ListNode mergeTwoList(ListNode list1, ListNode list2) {
+        if (list1 == null) {
+            return list2;
+        }
+
+        if (list2 == null) {
+            return list1;
+        }
+
+        if (list1.val < list2.val) {
+            list1.next = mergeTwoList(list1.next, list2);
+            return list1;
+        } else {
+            list2.next = mergeTwoList(list1, list2.next);
             return list2;
         }
     }
